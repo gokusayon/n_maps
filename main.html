@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" href="static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="static/css/styles.css">
+    <script type="text/javascript" src="static/js/jquery-3.2.1.slim.min.js"></script>
+    <script type="text/javascript" src="static/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="static/js/results.js" defer="defer"></script>
+    <script type="text/javascript" src="static/js/app.js"></script>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div id="hamburger_menu" class="options-box" data-bind="css:   view.optionStatus()  ">
+            <h1>Visit New Delhi</h1>
+            <div>
+                <div data-bind="with: maps">
+                    <div class="col-md-12">
+                        <div class="row padding-left">
+                            <button id="show-listings" data-bind="click: showListings" class="btn btn-sm" >Show Listings</button>
+                            <button id="hide-listings" class="btn btn-sm" data-bind="click: hideListings">Hide Listings</button>
+                        </div>
+                        <div class="row">
+                            <input type="text" data-bind="textInput: filterLocation" class="form-control" placeholder="Start typing for location...">
+                            <!-- /input-group -->
+                            <!-- 
+                        <div data-bind="visible: isListVisible()" class="dropdown-menu"> -->
+                            <ul class="list-group" data-bind="foreach: items,visible:isListVisible">
+                                <li class="list-group-item" data-bind="text: address,click: $parent.selectedItem"></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="input-append btn-group">
+                </div>
+                <!-- /.col-lg-6 -->
+            </div>
+        </div>
+        <div class="map_wrapper" data-bind="css:view.mapStatus()  ">
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <button data-bind="click: view.incrementClickCounter" class="navbar-brand">
+                            <span class="glyphicon glyphicon-menu-hamburger"></span></button>
+                    </div>
+                </div>
+            </nav>
+            <div id="map"></div>
+        </div>
+    </div>
+</body>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClV9InzHzI7lQjHTrJWa0D4F00yMOuPhA&v=3&callback=initMap">
+</script>
+<script type="text/javascript" src="static/js/knockout-3.4.2.js"></script>
+<script type="text/javascript" src="static/js/ko.js"></script>
+
+</html>
