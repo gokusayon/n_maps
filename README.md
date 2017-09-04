@@ -1,5 +1,5 @@
 # n_maps
-FSND: Udacity Project 5 !
+FSND: Udacity Project 6 !
 
 ## This project includes:
 - main.html   	[home page]
