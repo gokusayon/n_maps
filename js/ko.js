@@ -29,7 +29,7 @@ function viewModel() {
     self.showWindow = function() {
         self.shouldShowMessage(!self.shouldShowMessage());
         resizeMap();
-    }
+    };
 
     // returns class for left pane
     self.optionStatus = ko.pureComputed(function() {
@@ -53,7 +53,7 @@ function viewModel() {
             return !self.shouldShowMessage() ? "map_wrapper-with-filter" : "map-only";
         }
     }, viewModel);
-};
+}
 
 //This function is used for binding user data such as filtered location.
 function mapsModel() {
@@ -95,11 +95,11 @@ function mapsModel() {
 
 
                 for (var index in list) {
-                    var add
+                    var add;
                     var item = {
                         location: list[index].geometry.location,
                         address: list[index].formatted_address
-                    }
+                    };
 
                     var marker = new google.maps.Marker({
                         position: list[index].geometry.location,
@@ -128,21 +128,21 @@ function mapsModel() {
                 showListings(markers_filter);
                 self.isListVisible(true);
             } else {
-                alert('Ooppsss, Something Went wrong!!')
+                alert('Ooppsss, Something Went wrong!!');
             }
         });
     });
 
     // List Item that is selected
     self.selectedItem = function() {
-        var location = { lat: this.location.lat(), lng: this.location.lng() }
+        var location = { lat: this.location.lat(), lng: this.location.lng() };
 
         map.setCenter(location);
         map.setZoom(15);
         self.items([]);
         self.isListVisible(false);
         self.filterLocation('');
-    }
+    };
 
     // Binding to show listings
     self.showListings = function() {
@@ -150,7 +150,7 @@ function mapsModel() {
         if (markers_filter.length)
             showListings(markers_filter);
 
-    }
+    };
 
     //Binding to hide listings
     self.hideListings = function() {
@@ -166,13 +166,13 @@ function mapsModel() {
             self.isListVisible(false);
             self.filterLocation('');
         }
-    }
-};
+    };
+}
 
 var rootModel = {
     view: new viewModel(),
     maps: new mapsModel()
-}
+};
 ko.applyBindings(rootModel);
 
 $(window).resize(function() {
