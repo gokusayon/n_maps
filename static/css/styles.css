@@ -1,3 +1,5 @@
+/*basic tags*/
+
 html,
 body {
     font-family: Arial, sans-serif;
@@ -19,6 +21,21 @@ h1 {
     text-align: center;
 }
 
+hr{
+    border-top-color: #afafaf;
+}
+
+#show-listings,#hide-listings{
+    width:100%;
+}
+
+.col-centered{
+    text-align: center;
+    margin: 0px;
+}
+
+/*Custom Buttons*/
+
 button,
 button:hover,
 button:focus {
@@ -31,35 +48,108 @@ button:active {
     color: white !important;
 }
 
-.btn{
+.btn {
     border: 1px solid;
 }
 
-.btn:hover{
+.btn:hover {
     border: 1px solid grey;
 }
+
+
+
+/*Wrapper for Left/Right panels*/
 
 .wrapper {
     height: 100%;
     position: relative;
+    overflow-y: hidden;
 }
 
-#hide-listings,
-#show-listings {
-    width: 48%;
-}
+
+
+/*Map Wrapper : Right Panel*/
 
 .map_wrapper {
+    bottom: 0px;
+    height: 100%;
+    padding: 0px;
+    position: absolute;
+    right: 0px;
+    left: 20%;
+    background-color: #ebebed;
+}
+
+
+
+/* when width is minimum @media(529px)*/
+
+.map_wrapper-with-filter {
+    left: 20%;
+    /*-webkit-transition-duration: 0.2s;*/
+    transition: visibility 0.2s;
     bottom: 0px;
     height: 100%;
     padding: 0px;
     /*left: 340px;*/
     position: absolute;
     right: 0px;
-    left: 340px;
-    overflow-y: hidden;
-    /*-webkit-transition-duration: 0.8s;*/
 }
+
+
+/*Filter Wrapper */
+
+
+/*Left Panel*/
+
+.options-box {
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 3px;
+    height: 100%;
+    line-height: 35px;
+    text-align: left;
+    width: 20%;
+    overflow-y: auto;
+    background-color: #dadada;
+}
+
+
+
+/*onClick of hamburger*/
+
+.options-box-hide {
+
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 3px;
+    height: 100%;
+    line-height: 35px;
+    text-align: left;
+    width: 20%;
+    display: none;
+}
+
+
+
+/* when width is minimum @media(529px)*/
+
+.options-box-hide-with-filter {
+
+    background: #fff;
+    border: 1px solid #999;
+    border-radius: 3px;
+    height: 100%;
+    line-height: 35px;
+    text-align: left;
+    width: 20%;
+    overflow-y: auto;
+}
+
+
+
+
+/* Styling for Google Maps */
 
 #map {
     padding: 0px;
@@ -72,50 +162,148 @@ button:active {
     height: 100%;
 }
 
-.map-only {
-    left: 340px;
-    /*-webkit-transition-duration: 0.8s;*/
+
+
+
+/*NavBar*/
+
+.navbar-heading {
+    color: #ebebeb !important;
+    margin: 0px;
 }
 
-.map-with-filter {
-    left: 0px;
-    /*-webkit-transition-duration: 0.2s;*/
-    transition: visibility 0.2s;
+.navbar-default {
+
+    background-color: #2d3044;
 }
 
-.options-box {
-    background: #fff;
-    border: 1px solid #999;
-    border-radius: 3px;
-    height: 100%;
-    line-height: 35px;
-    /*padding: 0px;*/
-    /*padding: 10px 10px 30px 10px;*/
-    text-align: left;
-    width: 340px;
-    /*-webkit-transition-duration: 0.8s;*/
+.custom-navbar{
+    /*color: #2d3044;*/
+    margin: 0px;
 }
 
-.options-box-hide {
-    display: none;
-    /*-webkit-transition-duration: 0.8s;*/
+.custom-navbar:hover{
+    color: #ebebeb;
 }
 
 
-@media (max-width:767px) {
+/* Info Window */
 
 
+/* Panorama div */
+
+#pano {
+    width: 200px;
+    height: 200px;
+}
+
+.title {
+    color: #525454;
+    font-size: 1.2em;
+    /*margin: 0 0 10px 0;*/
+    text-align: center;
+}
+
+.content {
+    font-size: 0.8em;
+}
+
+.list-group-item {
+    margin: 1%;
+}
+
+
+
+/* Custom Padding */
+
+.padding-left {
+    padding: 10px;
+}
+
+.filter-padding {
+    padding: 5px;
+}
+
+
+
+/* Responsive Design */
+@media (max-width:1366px) {
+
+
+    .col-md-6{
+        width:50%;
+        padding: 1px;
+    }
     .map_wrapper {
-        left: 202px;
+        left: 25%;
         -webkit-transition-duration: 0.2s;
     }
 
     .options-box {
-        width: 200px;
+        width: 25%;
     }
+
 }
 
-@media (max-width:514px) {
+@media (max-width:990px) {
+    .col-md-6{
+        width:100%;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .map_wrapper {
+        left: 25%;
+        -webkit-transition-duration: 0.2s;
+    }
+
+    .options-box {
+        width: 25%;
+    }
+
+}
+
+@media (max-width:835px) {
+
+
+    .map_wrapper {
+        left: 30%;
+        -webkit-transition-duration: 0.2s;
+    }
+
+    .options-box {
+        width: 30%;
+    }
+/*
+    .map_wrapper-with-filter {
+        left: 30%;
+    }
+    .options-box-hide-with-filter {
+        width: 30%;
+    }*/
+}
+
+@media (max-width:710px) {
+
+
+    .map_wrapper {
+        left: 35%;
+        -webkit-transition-duration: 0.2s;
+    }
+
+    .options-box {
+        width: 35%;
+    }
+/*
+    .map_wrapper-with-filter {
+        left: 35%;
+    }
+    .options-box-hide-with-filter {
+        width: 35%;
+    }*/
+}
+
+@media (max-width:529px) {
 
 
     .map_wrapper {
@@ -126,32 +314,11 @@ button:active {
     .options-box {
         display: none;
     }
-}
 
-
-
-
-/*NavBar*/
-
-.navbar {
-    color: #2d3044;
-    margin: 0px;
-    /*-webkit-transition-duration: 0.4s;*/
-}
-
-.navbar-default {
-
-    background-color: #2d3044;
-}
-
-.navbar-brand {}
-
-
-#pano {
-    width: 200px;
-    height: 200px;
-}
-
-.padding-left{
-    padding:10px;
+    .map_wrapper-with-filter {
+        left: 60%;
+    }
+    .options-box-hide-with-filter {
+        width: 60%;
+    }
 }
