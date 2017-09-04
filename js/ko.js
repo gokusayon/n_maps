@@ -35,7 +35,6 @@ function viewModel() {
     self.optionStatus = ko.pureComputed(function() {
         var width = $(window).width();
         if (width > 529) {
-
             return self.shouldShowMessage() ? "options-box" : "options-box-hide";
         } else {
 
@@ -51,7 +50,6 @@ function viewModel() {
         if (width > 529) {
             return self.shouldShowMessage() ? "map_wrapper" : "map-only";
         } else {
-
             return !self.shouldShowMessage() ? "map_wrapper-with-filter" : "map-only";
         }
     }, viewModel);
@@ -156,7 +154,7 @@ function mapsModel() {
 
     //Binding to hide listings
     self.hideListings = function() {
-        debugger;
+        
         if (markers.length)
             hideListings(markers);
 

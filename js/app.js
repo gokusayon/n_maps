@@ -123,7 +123,7 @@ function populateInfoWindow(marker, infowindow) {
         infowindow.setContent('<div id="pano"></div>');
 
         getDataFromFourSquare(marker.position, marker.title).then(function(data) {
-            if (data.status) {debugger;
+            if (data.status) {
 
 
                 infowindow.setContent('<div><div class="title"><b>' + data.response.name + "</b></div>" +
