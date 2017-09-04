@@ -24,10 +24,14 @@ function viewModel() {
 
     // If the filter window is to be shown
     self.shouldShowMessage = ko.observable(true);
+
+    //  click binding for showing filter location pane
     self.showWindow = function() {
         self.shouldShowMessage(!self.shouldShowMessage());
         resizeMap();
     }
+
+    // returns class for left pane
     self.optionStatus = ko.pureComputed(function() {
         var width = $(window).width();
         if (width > 529) {
@@ -38,6 +42,8 @@ function viewModel() {
             return self.shouldShowMessage() ? "options-box" : "options-box-hide-with-filter";
         }
     }, viewModel);
+
+    //returns class for right pane 
     self.mapStatus = ko.pureComputed(function() {
 
         var width = $(window).width();
@@ -54,11 +60,21 @@ function viewModel() {
 //This function is used for binding user data such as filtered location.
 function mapsModel() {
     var self = this;
+
+    // This variable is used for binding input text for filter search
     self.filterLocation = ko.observable();
+
+    // True if left pane visible 
     self.isListVisible = ko.observable(false);
+    // List of all the location for `self.fliterLocation` 
     self.items = ko.observableArray();
+
+    // Sanity check 
     self.throttledFilterLocation = ko.computed(self.filterLocation)
         .extend({ rateLimit: { timeout: 500, method: "notifyWhenChangesStop" } });
+
+    // Fetches locations using google maps api and populates the `markers_filter`.
+    // This function waits untill user has finished typing.
     self.throttledFilterLocation.subscribe(function(newValue) {
 
         if (self.filterLocation().length <= 0) {
@@ -92,7 +108,7 @@ function mapsModel() {
                         title: list[index].address_components[0].short_name,
                         animation: google.maps.Animation.DROP,
                         id: index,
-                        icon:defaultIcon
+                        icon: defaultIcon
                     });
 
 
@@ -118,29 +134,27 @@ function mapsModel() {
             }
         });
     });
+
+    // List Item that is selected
     self.selectedItem = function() {
         var location = { lat: this.location.lat(), lng: this.location.lng() }
 
         map.setCenter(location);
         map.setZoom(15);
-        // var marker = new google.maps.Marker({
-        //     position: location,
-        //     map: map,
-        //     title: this.address,
-        //     animation: google.maps.Animation.DROP,
-        //     id: 1
-        // });
         self.items([]);
         self.isListVisible(false);
         self.filterLocation('');
     }
 
+    // Binding to show listings
     self.showListings = function() {
         showListings(markers);
         if (markers_filter.length)
             showListings(markers_filter);
 
     }
+
+    //Binding to hide listings
     self.hideListings = function() {
         debugger;
         if (markers.length)
@@ -157,14 +171,11 @@ function mapsModel() {
     }
 };
 
-// var myObservableArray = ko.observableArray(); 
-
 var rootModel = {
     view: new viewModel(),
     maps: new mapsModel()
 }
 ko.applyBindings(rootModel);
-// ko.applyBindings(new mapsModel());
 
 $(window).resize(function() {
     resizeMap();

@@ -1,6 +1,6 @@
 var map;
 var clientID = 'T2QWMSK245PKMKIMQV152GJSNDRFVVXPH4P5AECAUFCE4GKF';
-var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI'
+var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI';
 
 // Create a new blank array for all the default locations.
 var markers = [];
@@ -15,7 +15,7 @@ function initMap() {
 
     // These are the real estate listings that will be shown to the user.
     // Normally we'd have these in a database instead.
-    var locations = clientSevret = [
+    var locations = [
         { title: 'Rashtrapati Bhavan', location: { lat: 28.6144, lng: 77.1996 } },
         {
             title: 'National Zoological Park',
@@ -72,28 +72,34 @@ function initMap() {
 function getDataFromFourSquare(latlng, query) {
     var deferred = $.Deferred();
 
-    var URL = 'https://api.foursquare.com/v2/venues/search?ll=' + latlng.lat() + ',' + latlng.lng() +
+    var url = 'https://api.foursquare.com/v2/venues/search?ll=' + latlng.lat() + ',' + latlng.lng() +
         '&client_id=' + clientID + '&client_secret=' + clientSecret + '&v=20160118&query=' + query;
 
     var promise = $.ajax({
         type: 'POST',
         dataType: 'json',
-        url: URL,
+        url: url,
         success: function(data) {
-            var response = {};
+            var response = {
+                url:'',
+                street:'',
+                city:'',
+                phone:'',
+                name:''
+            };
             var results = data.response.venues[0];
-            response['URL'] = results.url;
-            if (typeof response['URL'] === 'undefined') {
-                response['URL'] = "";
+            response.url = results.url;
+            if (typeof response.url === 'undefined') {
+                response.url = "";
             }
-            response['street'] = results.location.formattedAddress[0];
-            response['city'] = results.location.formattedAddress[1];
-            response['hone'] = results.contact.phone;
-            response['name'] = results.name;
-            if (typeof response['phone'] === 'undefined') {
-                response['phone'] = "";
+            response.street = results.location.formattedAddress[0];
+            response.city = results.location.formattedAddress[1];
+            response.phone = results.contact.phone;
+            response.name = results.name;
+            if (typeof response.phone === 'undefined') {
+                response.phone = "";
             } else {
-                response['phone'] = formatPhone(response['street']);
+                response.phone = response.phone;
             }
 
             deferred.resolve({ status: true, response: response });
@@ -117,11 +123,11 @@ function populateInfoWindow(marker, infowindow) {
         infowindow.setContent('<div id="pano"></div>');
 
         getDataFromFourSquare(marker.position, marker.title).then(function(data) {
-            if (data.status) {
+            if (data.status) {debugger;
 
 
                 infowindow.setContent('<div><div class="title"><b>' + data.response.name + "</b></div>" +
-                    '<div class="content"><a href="' + data.response.URL + '">' + data.response.URL + "</a></div>" +
+                    '<div class="content"><a href="' + data.response.url + '">' + data.response.url + "</a></div>" +
                     '<div class="content">' + data.response.street + "</div>" +
                     '<div class="content">' + data.response.city + "</div>" +
                     '<div class="content">' + data.response.phone + '</div></div><div id="pano"></div>');
@@ -186,9 +192,9 @@ function zoomToArea(addressValue) {
     // Get the address or place that the user entered.
     var address = addressValue;
     // Make sure the address isn't blank.
-    if (address == '') {
+    if (address === '') {
         window.alert('You must enter an area, or address.');
-        deferred.reject({ status: false, 'results': [] })
+        deferred.reject({ status: false, 'results': [] });
     } else {
         // Geocode the address/area entered to get the center. Then, center the map
         // on it and zoom in
@@ -201,7 +207,7 @@ function zoomToArea(addressValue) {
                 // map.setZoom(15);
                 deferred.resolve({ status: true, results: results });
             } else {
-                deferred.reject({ status: false, 'results': [] })
+                deferred.reject({ status: false, 'results': [] });
                 window.alert('We could not find that location - try entering a more' +
                     ' specific place.');
             }
