@@ -2,6 +2,7 @@
 // Blank array for all the filtered markers
 var markers_filter = [];
 
+
 function resizeMap() {
     try {
         document.getElementById("map");
@@ -24,7 +25,7 @@ function showListings(value) {
 }
 
 // This function is used for class bindings
-function viewModel() {
+function ViewModel() {
     var self = this;
 
     // If the filter window is to be shown
@@ -45,7 +46,7 @@ function viewModel() {
 
             return self.shouldShowMessage() ? "options-box" : "options-box-hide-with-filter";
         }
-    }, viewModel);
+    }, ViewModel);
 
     //returns class for right pane 
     self.mapStatus = ko.pureComputed(function() {
@@ -57,16 +58,12 @@ function viewModel() {
         } else {
             return !self.shouldShowMessage() ? "map_wrapper-with-filter" : "map_wrapper";
         }
-    }, viewModel);
+    }, ViewModel);
 }
 
 //This function is used for binding user data such as filtered location.
-function mapsModel() {
+function MapsModel() {
     var self = this;
-
-    var mapping = {
-        'ignore': ["propertyToIgnore", "alsoIgnoreThis"]
-    }
 
     // This variable is used for binding input text for filter search
     self.filterLocation = ko.observable();
@@ -75,42 +72,42 @@ function mapsModel() {
     self.isListVisible = ko.observable(false);
 
     self.defaultItems = ko.observableArray([{
-            title: 'Rashtrapati Bhavan',
-            location: {
-                lat: 28.6144,
-                lng: 77.1996
+            "title": "Rashtrapati Bhavan",
+            "location": {
+                "lat": 28.6144,
+                "lng": 77.1996
             }
         },
         {
-            title: 'National Zoological Park',
-            location: {
+            "title": "National Zoological Park",
+            "location": {
                 "lat": 28.6030,
                 "lng": 77.2465
             }
         }, {
-            title: 'Khan Market',
-            location: {
+            "title": "Khan Market",
+            "location": {
                 "lat": 28.6001,
                 "lng": 77.2270
             }
         }, {
-            title: 'Jawaharlal Nehru Stadium',
-            location: {
+            "title": "Jawaharlal Nehru Stadium",
+            "location": {
                 "lat": 28.5828,
                 "lng": 77.2344
             }
         }, {
-            title: 'India Gate',
-            location: {
+            "title": "India Gate",
+            "location": {
                 "lat": 28.6129,
                 "lng": 77.2295
             }
         }
     ]);
 
-
     self.setMarkerForDefaultList = function() {
-        debugger;
+        var largeInfowindow = new google.maps.InfoWindow();
+
         // hideListings(markers_filter)
         self.hideListings();
 
@@ -121,7 +118,8 @@ function mapsModel() {
             animation: google.maps.Animation.DROP,
             id: 1,
             map: map,
-            icon: defaultIcon
+            icon: defaultIcon,
+            optimized: false // stops the marker from flashing
         });
 
         // Create a "highlighted location" marker color for when the user
@@ -137,7 +135,7 @@ function mapsModel() {
             this.setIcon(defaultIcon);
         });
         marker.addListener('click', function() {
-            populateInfoWindow(marker, new google.maps.InfoWindow());
+            populateInfoWindow(marker, largeInfowindow);
         });
 
         map.setCenter(this.location);
@@ -145,9 +143,9 @@ function mapsModel() {
 
         markers_filter.push(marker);
 
-        populateInfoWindow(marker, new google.maps.InfoWindow());
+        populateInfoWindow(marker, largeInfowindow);
 
-    }
+    };
     // List of all the location for `self.fliterLocation` 
     self.items = ko.observableArray();
 
@@ -155,10 +153,23 @@ function mapsModel() {
     self.throttledFilterLocation = ko.computed(self.filterLocation)
         .extend({ rateLimit: { timeout: 500, method: "notifyWhenChangesStop" } });
 
+    // Used to filter default locations from the `self.defaultItems`. This is case sensitive.
+    this.filterDefaultLocations = ko.computed(function() {
+
+        return ko.utils.arrayFilter(self.defaultItems(), function(item) {
+            if (self.filterLocation() == undefined)
+                return true;
+            else if (item.title.indexOf(self.filterLocation()) === -1)
+                return false;
+            else
+                return true;
+        });
+    });
+
     // Fetches locations using google maps api and populates the `markers_filter`.
     // This function waits untill user has finished typing.
     self.throttledFilterLocation.subscribe(function(newValue) {
-        debugger;
+
         if (self.filterLocation().length <= 0) {
             return;
         }
@@ -174,7 +185,6 @@ function mapsModel() {
 
                 var list = response.results;
 
-                var largeInfowindow = new google.maps.InfoWindow();
                 var defaultIcon = makeMarkerIcon('0091ff');
 
                 // Create a "highlighted location" marker color for when the user
@@ -193,8 +203,10 @@ function mapsModel() {
                         title: list[index].address_components[0].short_name,
                         animation: google.maps.Animation.DROP,
                         id: index,
-                        icon: defaultIcon
+                        icon: defaultIcon,
+                        optimized: false // stops the marker from flashing
                     });
+                    var largeInfowindow = new google.maps.InfoWindow();
 
                     marker.addListener('click', function onClickFunction() {
                         populateInfoWindow(this, largeInfowindow);
@@ -223,13 +235,13 @@ function mapsModel() {
 
     // List Item that is selected
     self.selectedItem = function() {
-        debugger;
+
 
         var location = { lat: this.position.lat(), lng: this.position.lng() };
 
         // populateInfoWindow(this,google.maps.InfoWindow());
         // this.trigger('click');
-        new google.maps.event.trigger(this, 'click');
+        var event = new google.maps.event.trigger(this, 'click');
         map.setCenter(location);
         map.setZoom(15);
         self.items([]);
@@ -239,6 +251,7 @@ function mapsModel() {
 
     // Binding to show listings
     self.showListings = function() {
+        self.filterLocation('');
         showListings(markers);
         if (markers_filter.length)
             showListings(markers_filter);
@@ -257,16 +270,16 @@ function mapsModel() {
             markers_filter = [];
             self.items([]);
             self.isListVisible(false);
-            self.filterLocation('');
+            // self.filterLocation('');
         }
     };
 }
 
-var rootModel = {
-    view: new viewModel(),
-    maps: new mapsModel()
+var RootModel = {
+    view: new ViewModel(),
+    maps: new MapsModel()
 };
-ko.applyBindings(rootModel);
+ko.applyBindings(RootModel);
 
 $(window).resize(function() {
     resizeMap();

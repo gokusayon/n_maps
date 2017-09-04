@@ -43,17 +43,10 @@
                     <div class="row">
                         <!-- /.row -->
                         <hr class="filter-margin">
-                        <ul class="list-group " data-bind="foreach: defaultItems,hidden:isListVisible">
+                        <ul class="list-group " data-bind="foreach: filterDefaultLocations,hidden:isListVisible">
                             <li class="list-group-item" data-bind="text: title,click: $parent.setMarkerForDefaultList">asdasd</li>
                         </ul>
                     </div>
-                    <!--  <div class="row">
-                        <ul class="list-group " data-bind="foreach: defaultItems">
-                            <li class="list-group-item" data-bind="text: title,click: $parent.selectedItem"></li>
-                        </ul>
-                    </div> -->
-                    <!-- /.row -->
-                    <!-- /.row -->
                 </div>
                 <!-- /.col-lg-6 -->
             </div>
@@ -80,7 +73,7 @@
 <script src="js/app.js"></script>
 <script src="js/knockout-3.4.2.js"></script>
 <script src="js/ko.js"></script>
-<script async defer src="https://maps.googleapisasd.com/maps/api/js?key=AIzaSyClV9InzHzI7lQjHTrJWa0D4F00yMOuPhA&v=3&callback=initMap" onerror="error()">
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyClV9InzHzI7lQjHTrJWa0D4F00yMOuPhA&v=3&callback=initMap" onerror="error()">
 </script>
 </body>
 

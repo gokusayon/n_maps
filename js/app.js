@@ -1,8 +1,8 @@
 /*jshint -W083 */
-window.onerror = function (msg, url, lineNo, columnNo, error) {
+window.onerror = function(msg, url, lineNo, columnNo, error) {
     var string = msg.toLowerCase();
     var substring = "script error";
-    if (string.indexOf(substring) > -1){
+    if (string.indexOf(substring) > -1) {
         alert('Script Error: See Browser Console for Detail');
     } else {
         var message = [
@@ -77,8 +77,9 @@ function initMap() {
             position: position,
             title: title,
             animation: google.maps.Animation.DROP,
-            id: i
-        }); 
+            id: i,
+            optimized: false // stops the marker from flashing
+        });
 
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
@@ -86,7 +87,7 @@ function initMap() {
         });
         // Push the marker to our array of markers.
         markers.push(marker);
-       
+
     }
 }
 
@@ -104,11 +105,11 @@ function getDataFromFourSquare(latlng, query) {
         url: url,
         success: function(data) {
             var response = {
-                url:'',
-                street:'',
-                city:'',
-                phone:'',
-                name:''
+                url: '',
+                street: '',
+                city: '',
+                phone: '',
+                name: ''
             };
             var results = data.response.venues[0];
             response.url = results.url;
@@ -126,6 +127,9 @@ function getDataFromFourSquare(latlng, query) {
             }
 
             deferred.resolve({ status: true, response: response });
+        },
+        error: function(response) {
+            deferred.reject({ status: false, response: {} });
         }
     });
 
@@ -160,6 +164,15 @@ function populateInfoWindow(marker, infowindow) {
             } else {
                 infowindow.setContent('<div class="title">' + marker.title + '</div><div id="pano"></div>');
             }
+
+            // Adding bouncing animation to marker on click
+            if (marker.getAnimation() !== null) {
+                marker.setAnimation(null);
+            } else {
+                marker.setAnimation(google.maps.Animation.BOUNCE);
+                setTimeout(function() { marker.setAnimation(null); }, 1500);
+            }
+
             infowindow.marker = marker;
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
