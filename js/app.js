@@ -1,4 +1,24 @@
 /*jshint -W083 */
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+    var string = msg.toLowerCase();
+    var substring = "script error";
+    if (string.indexOf(substring) > -1){
+        alert('Script Error: See Browser Console for Detail');
+    } else {
+        var message = [
+            'Message: ' + msg,
+            'URL: ' + url,
+            'Line: ' + lineNo,
+            'Column: ' + columnNo,
+            'Error object: ' + JSON.stringify(error)
+        ].join(' - ');
+
+        alert(message);
+    }
+
+    return false;
+};
+
 var map;
 var clientID = 'T2QWMSK245PKMKIMQV152GJSNDRFVVXPH4P5AECAUFCE4GKF';
 var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI';
@@ -79,7 +99,7 @@ function getDataFromFourSquare(latlng, query) {
         '&client_id=' + clientID + '&client_secret=' + clientSecret + '&v=20160118&query=' + query;
 
     var promise = $.ajax({
-        type: 'POST',
+        type: 'GET',
         dataType: 'json',
         url: url,
         success: function(data) {

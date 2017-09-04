@@ -3,8 +3,12 @@
 var markers_filter = [];
 
 function resizeMap() {
-    document.getElementById("map");
-    google.maps.event.trigger(map, "resize");
+    try {
+        document.getElementById("map");
+        google.maps.event.trigger(map, "resize");
+    } catch (err) {
+        console.log("unable to trigger resize");
+    }
 }
 
 // This function will loop through the markers array and display them all.
@@ -51,7 +55,7 @@ function viewModel() {
         if (width > 529) {
             return self.shouldShowMessage() ? "map_wrapper" : "map-only";
         } else {
-            return !self.shouldShowMessage() ? "map_wrapper-with-filter" : "map-only";
+            return !self.shouldShowMessage() ? "map_wrapper-with-filter" : "map_wrapper";
         }
     }, viewModel);
 }
@@ -60,11 +64,90 @@ function viewModel() {
 function mapsModel() {
     var self = this;
 
+    var mapping = {
+        'ignore': ["propertyToIgnore", "alsoIgnoreThis"]
+    }
+
     // This variable is used for binding input text for filter search
     self.filterLocation = ko.observable();
 
     // True if left pane visible 
     self.isListVisible = ko.observable(false);
+
+    self.defaultItems = ko.observableArray([{
+            title: 'Rashtrapati Bhavan',
+            location: {
+                lat: 28.6144,
+                lng: 77.1996
+            }
+        },
+        {
+            title: 'National Zoological Park',
+            location: {
+                "lat": 28.6030,
+                "lng": 77.2465
+            }
+        }, {
+            title: 'Khan Market',
+            location: {
+                "lat": 28.6001,
+                "lng": 77.2270
+            }
+        }, {
+            title: 'Jawaharlal Nehru Stadium',
+            location: {
+                "lat": 28.5828,
+                "lng": 77.2344
+            }
+        }, {
+            title: 'India Gate',
+            location: {
+                "lat": 28.6129,
+                "lng": 77.2295
+            }
+        }
+    ]);
+
+
+    self.setMarkerForDefaultList = function() {
+        debugger;
+        // hideListings(markers_filter)
+        self.hideListings();
+
+        var defaultIcon = makeMarkerIcon('0091ff');
+        var marker = new google.maps.Marker({
+            position: this.location,
+            title: this.title,
+            animation: google.maps.Animation.DROP,
+            id: 1,
+            map: map,
+            icon: defaultIcon
+        });
+
+        // Create a "highlighted location" marker color for when the user
+        // mouses over the marker.
+        var highlightedIcon = makeMarkerIcon('FFFF24');
+
+        // Two event listeners - one for mouseover, one for mouseout,
+        // to change the colors back and forth.
+        marker.addListener('mouseover', function() {
+            this.setIcon(highlightedIcon);
+        });
+        marker.addListener('mouseout', function() {
+            this.setIcon(defaultIcon);
+        });
+        marker.addListener('click', function() {
+            populateInfoWindow(marker, new google.maps.InfoWindow());
+        });
+
+        map.setCenter(this.location);
+        map.setZoom(15);
+
+        markers_filter.push(marker);
+
+        populateInfoWindow(marker, new google.maps.InfoWindow());
+
+    }
     // List of all the location for `self.fliterLocation` 
     self.items = ko.observableArray();
 
@@ -75,13 +158,17 @@ function mapsModel() {
     // Fetches locations using google maps api and populates the `markers_filter`.
     // This function waits untill user has finished typing.
     self.throttledFilterLocation.subscribe(function(newValue) {
-
+        debugger;
         if (self.filterLocation().length <= 0) {
             return;
         }
 
+        self.hideListings();
+
         self.items([]);
         markers_filter = [];
+
+        // Return the geocoding for filtered locations
         zoomToArea(newValue).then(function(response) {
             if (response.status) {
 
@@ -94,7 +181,7 @@ function mapsModel() {
                 // mouses over the marker.
                 var highlightedIcon = makeMarkerIcon('FFFF24');
 
-                for (var index =0; index< list.length; index++) {
+                for (var index = 0; index < list.length; index++) {
                     var add;
                     var item = {
                         location: list[index].geometry.location,
@@ -109,7 +196,7 @@ function mapsModel() {
                         icon: defaultIcon
                     });
 
-                    marker.addListener('click', function() {
+                    marker.addListener('click', function onClickFunction() {
                         populateInfoWindow(this, largeInfowindow);
                     });
                     // Two event listeners - one for mouseover, one for mouseout,
@@ -122,8 +209,8 @@ function mapsModel() {
                     });
 
                     markers_filter.push(marker);
-                    
-                    self.items.push(item);
+
+                    self.items.push(marker);
                 }
 
                 showListings(markers_filter);
@@ -136,8 +223,13 @@ function mapsModel() {
 
     // List Item that is selected
     self.selectedItem = function() {
-        var location = { lat: this.location.lat(), lng: this.location.lng() };
+        debugger;
 
+        var location = { lat: this.position.lat(), lng: this.position.lng() };
+
+        // populateInfoWindow(this,google.maps.InfoWindow());
+        // this.trigger('click');
+        new google.maps.event.trigger(this, 'click');
         map.setCenter(location);
         map.setZoom(15);
         self.items([]);
@@ -155,7 +247,7 @@ function mapsModel() {
 
     //Binding to hide listings
     self.hideListings = function() {
-        
+
         if (markers.length)
             hideListings(markers);
 

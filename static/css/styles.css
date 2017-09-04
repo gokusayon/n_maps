@@ -224,7 +224,10 @@ button:active {
     padding: 5px;
 }
 
-
+.filter-margin{
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
 
 /* Responsive Design */
 @media (max-width:1366px) {
