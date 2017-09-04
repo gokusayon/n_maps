@@ -1,3 +1,4 @@
+/*jshint -W083 */
 var map;
 var clientID = 'T2QWMSK245PKMKIMQV152GJSNDRFVVXPH4P5AECAUFCE4GKF';
 var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI';
@@ -57,13 +58,15 @@ function initMap() {
             title: title,
             animation: google.maps.Animation.DROP,
             id: i
-        });
-        // Push the marker to our array of markers.
-        markers.push(marker);
+        }); 
+
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
         });
+        // Push the marker to our array of markers.
+        markers.push(marker);
+       
     }
 }
 

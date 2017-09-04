@@ -1,3 +1,4 @@
+/*jshint -W083 */
 // Blank array for all the filtered markers
 var markers_filter = [];
 
@@ -93,8 +94,7 @@ function mapsModel() {
                 // mouses over the marker.
                 var highlightedIcon = makeMarkerIcon('FFFF24');
 
-
-                for (var index in list) {
+                for (var index =0; index< list.length; index++) {
                     var add;
                     var item = {
                         location: list[index].geometry.location,
@@ -109,8 +109,6 @@ function mapsModel() {
                         icon: defaultIcon
                     });
 
-
-                    markers_filter.push(marker);
                     marker.addListener('click', function() {
                         populateInfoWindow(this, largeInfowindow);
                     });
@@ -122,6 +120,9 @@ function mapsModel() {
                     marker.addListener('mouseout', function() {
                         this.setIcon(defaultIcon);
                     });
+
+                    markers_filter.push(marker);
+                    
                     self.items.push(item);
                 }
 
