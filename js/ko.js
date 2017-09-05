@@ -190,7 +190,7 @@ function MapsModel() {
                     // self.items.push(marker);
                 }
         // showListings(markers_filter);
-    })
+    });
 
     // Fetches locations using google maps api and populates the `markers_filter`.
     // This function waits untill user has finished typing.
@@ -261,8 +261,6 @@ function MapsModel() {
 
     // List Item that is selected
     self.selectedItem = function() {
-        debugger;
-
         var location = { lat: this.position.lat(), lng: this.position.lng() };
 
         // populateInfoWindow(this,google.maps.InfoWindow());
