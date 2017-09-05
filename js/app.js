@@ -127,7 +127,7 @@ function getDataFromFourSquare(latlng, query) {
     var url = 'https://api.foursquare.com/v2/venues/search?ll=' + latlng.lat() + ',' + latlng.lng() +
         '&client_id=' + clientID + '&client_secret=' + clientSecret + '&v=20160118&query=' + query;
 
-    var promise = $.ajax({
+    $.ajax({
         type: 'GET',
         dataType: 'json',
         url: url,
@@ -179,7 +179,7 @@ function getDataFromFourSquare(latlng, query) {
 // on that markers position.
 function populateInfoWindow(marker, infowindow) {
 
-    if (currentMarker!=null) {
+    if (currentMarker!==null) {
         // currentMarker.setMap(null);
         if(currentMarker.infoWindow)
             currentMarker.infoWindow.close(map,null);
@@ -251,7 +251,7 @@ function populateInfoWindow(marker, infowindow) {
             // 50 meters of the markers position
             streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
             // Open the infowindow on the correct marker.
-            var result = infowindow.open(map, marker);
+            infowindow.open(map, marker);
             currentMarker = marker;
             currentMarker.infoWindow = infowindow;
         });
