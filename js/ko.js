@@ -59,47 +59,16 @@ function MapsModel() {
     // True if left pane visible 
     self.isListVisible = ko.observable(false);
 
-    self.defaultItems = ko.observableArray(default_locations);
+
+    self.defaultItems = ko.observableArray();
 
     self.setMarkerForDefaultList = function() {
         var largeInfowindow = new google.maps.InfoWindow();
 
         // hideListings(markers_filter)
-        self.hideListings();
+        // self.hideListings();
 
-        var defaultIcon = makeMarkerIcon('0091ff');
-        var marker = new google.maps.Marker({
-            position: this.location,
-            title: this.title,
-            animation: google.maps.Animation.DROP,
-            id: 1,
-            map: map,
-            icon: defaultIcon,
-            optimized: false // stops the marker from flashing
-        });
-
-        // Create a "highlighted location" marker color for when the user
-        // mouses over the marker.
-        var highlightedIcon = makeMarkerIcon('FFFF24');
-
-        // Two event listeners - one for mouseover, one for mouseout,
-        // to change the colors back and forth.
-        marker.addListener('mouseover', function() {
-            this.setIcon(highlightedIcon);
-        });
-        marker.addListener('mouseout', function() {
-            this.setIcon(defaultIcon);
-        });
-        marker.addListener('click', function() {
-            populateInfoWindow(marker, largeInfowindow);
-        });
-
-        map.setCenter(this.location);
-        map.setZoom(15);
-
-        markers_filter.push(marker);
-
-        populateInfoWindow(marker, largeInfowindow);
+        populateInfoWindow(this, largeInfowindow);
 
     };
     // List of all the location for `self.fliterLocation` 
@@ -114,60 +83,26 @@ function MapsModel() {
             }
         });
 
-    self.filterDefaultLocation = ko.observable('');
+    self.filterDefaultLocation = ko.observable();
 
     // Used to filter default locations from the `self.defaultItems`. This is case sensitive.
     this.filterDefaultLocationList = ko.computed(function() {
-
         return ko.utils.arrayFilter(self.defaultItems(), function(item) {
             if (self.filterDefaultLocation() == undefined)
                 return true;
-            else if (item.title.indexOf(self.filterDefaultLocation()) === -1)
-                return false;
-            else
-                return true;
+            else if (item.title.indexOf(self.filterDefaultLocation()) === -1){
+                item.setMap(null);
+                            return false;}
+            else{
+                // item.setMap(map);
+                            return true;}
         });
     });
 
     this.filterDefaultLocationList.subscribe(function(list) {
-        // var marker_filter = [];
-        // 
-        // markers_filter = [];
-        var defaultIcon = makeMarkerIcon('0091ff');
-        var highlightedIcon = makeMarkerIcon('FFFF24');
-        var largeInfowindow = new google.maps.InfoWindow();
-        var filteredDefaultmarkerList = [];
-        for (var index = 0; index < list.length; index++) {
-            var position = list[index].location;
-            var title = list[index].title;
-            // Create a marker per location, and put into markers array.
-            var marker = new google.maps.Marker({
-                position: position,
-                title: title,
-                animation: google.maps.Animation.DROP,
-                id: index,
-            });
-            marker.addListener('click', function onClickFunction() {
-                populateInfoWindow(this, largeInfowindow);
-            });
-            // Two event listeners - one for mouseover, one for mouseout,
-            // to change the colors back and forth.
-            marker.addListener('mouseover', function() {
-                this.setIcon(highlightedIcon);
-            });
-            marker.addListener('mouseout', function() {
-                this.setIcon(defaultIcon);
-            });
-
-            // marker.setMap(map);
-
-            filteredDefaultmarkerList.push(marker);
-
-            // self.items.push(marker);
-        }
-
         self.hideListings();
-        showListings(filteredDefaultmarkerList);
+        if(list.length > 0)
+            showListings(list);
     });
 
     // Fetches locations using google maps api and populates the `markers_filter`.
@@ -272,10 +207,10 @@ function MapsModel() {
     //Binding to hide listings
     self.hideListings = function() {
 
-        if (markers.length) {
-            hideListings(markers);
+        // if (markers.length) {
+        //     hideListings(markers);
 
-        }
+        // }
         // If filtered locations are present then clear
         if (markers_filter.length) {
             hideListings(markers_filter);
@@ -287,11 +222,11 @@ function MapsModel() {
     };
 }
 
-var RootModel = {
+var rootModel = {
     view: new ViewModel(),
     maps: new MapsModel()
 };
-ko.applyBindings(RootModel);
+ko.applyBindings(rootModel);
 
 $(window).resize(function() {
     resizeMap();

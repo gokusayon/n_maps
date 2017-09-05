@@ -46,7 +46,7 @@
                     </div>
                     <div class="row">
                         <!-- /.row -->
-                        <ul class="list-group " data-bind="foreach: filterDefaultLocationList,hidden:isListVisible">
+                        <ul class="list-group " data-bind="foreach: filterDefaultLocationList(),hidden:isListVisible">
                             <li class="list-group-item" data-bind="text: title,click: $parent.setMarkerForDefaultList"></li>
                         </ul>
                     </div>

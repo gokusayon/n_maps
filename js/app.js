@@ -1,13 +1,17 @@
 /*jshint -W083 */
 
+
+
+var currentMarker = null;
+
 // if script does not load.
 var error = function(msg) {
     alert(msg + ' Check console for more details.');
     return false;
 };
 
-$( document ).ajaxError(function( event, request, settings ) {
-  alert('Unable to load url. Check console for more info.');
+$(document).ajaxError(function(event, request, settings) {
+    alert('Unable to load url. Check console for more info.');
 });
 
 var map;
@@ -78,6 +82,7 @@ function initMap() {
 
     var largeInfowindow = new google.maps.InfoWindow();
     var defaultIcon = makeMarkerIcon('0091ff');
+    var highlightedIcon = makeMarkerIcon('FFFF24');
 
     // The following group uses the location array to create an array of markers on initialize.
     for (var i = 0; i < locations.length; i++) {
@@ -91,19 +96,27 @@ function initMap() {
             animation: google.maps.Animation.DROP,
             id: i,
             optimized: false,
-            icon: defaultIcon // stops the marker from flashing
         });
 
         // Create an onclick event to open an infowindow at each marker.
         marker.addListener('click', function() {
             populateInfoWindow(this, largeInfowindow);
         });
+        // Two event listeners - one for mouseover, one for mouseout,
+        // to change the colors back and forth.
+        marker.addListener('mouseover', function() {
+            this.setIcon(highlightedIcon);
+        });
+        marker.addListener('mouseout', function() {
+            this.setIcon(defaultIcon);
+        });
+
         // Push the marker to our array of markers.
         markers.push(marker);
 
     }
-
-    showListings(markers);
+    // showListings(markers);
+    rootModel.maps.defaultItems(markers);
 }
 
 // This function is used to get info from third party api 
@@ -165,6 +178,13 @@ function getDataFromFourSquare(latlng, query) {
 // one infowindow which will open at the marker that is clicked, and populate based
 // on that markers position.
 function populateInfoWindow(marker, infowindow) {
+
+    if (currentMarker!=null) {
+        // currentMarker.setMap(null);
+        if(currentMarker.infoWindow)
+            currentMarker.infoWindow.close(map,null);
+    }
+
     // Check to make sure the infowindow is not already opened on this marker.
     if (infowindow.marker != marker) {
         // Clear the infowindow content to give the streetview time to load.
@@ -200,6 +220,7 @@ function populateInfoWindow(marker, infowindow) {
             // Make sure the marker property is cleared if the infowindow is closed.
             infowindow.addListener('closeclick', function() {
                 infowindow.marker = null;
+                currentMarker = null;
             });
             var streetViewService = new google.maps.StreetViewService();
             var radius = 100;
@@ -230,7 +251,9 @@ function populateInfoWindow(marker, infowindow) {
             // 50 meters of the markers position
             streetViewService.getPanoramaByLocation(marker.position, radius, getStreetView);
             // Open the infowindow on the correct marker.
-            infowindow.open(map, marker);
+            var result = infowindow.open(map, marker);
+            currentMarker = marker;
+            currentMarker.infoWindow = infowindow;
         });
 
     }
