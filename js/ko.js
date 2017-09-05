@@ -12,18 +12,6 @@ function resizeMap() {
     }
 }
 
-// This function will loop through the markers array and display them all.
-function showListings(value) {
-
-    var bounds = new google.maps.LatLngBounds();
-    // Extend the boundaries of the map for each marker and display the marker
-    for (var i = 0; i < value.length; i++) {
-        value[i].setMap(map);
-        bounds.extend(value[i].position);
-    }
-    map.fitBounds(bounds);
-}
-
 // This function is used for class bindings
 function ViewModel() {
     var self = this;
@@ -153,23 +141,61 @@ function MapsModel() {
     self.throttledFilterLocation = ko.computed(self.filterLocation)
         .extend({ rateLimit: { timeout: 500, method: "notifyWhenChangesStop" } });
 
+    self.filterDefaultLocation = ko.observable();
+
     // Used to filter default locations from the `self.defaultItems`. This is case sensitive.
-    this.filterDefaultLocations = ko.computed(function() {
+    this.filterDefaultLocationList = ko.computed(function() {
 
         return ko.utils.arrayFilter(self.defaultItems(), function(item) {
-            if (self.filterLocation() == undefined)
+            if (self.filterDefaultLocation() == undefined)
                 return true;
-            else if (item.title.indexOf(self.filterLocation()) === -1)
+            else if (item.title.indexOf(self.filterDefaultLocation()) === -1)
                 return false;
             else
                 return true;
         });
     });
 
+    this.filterDefaultLocationList.subscribe(function (list) {
+        // var marker_filter = [];
+
+                self.hideListings();
+        var defaultIcon = makeMarkerIcon('0091ff');
+        var highlightedIcon = makeMarkerIcon('FFFF24');
+        for (var index = 0; index < list.length; index++) {
+                                var marker = new google.maps.Marker({
+                        position: list[index].location,
+                        title: list[index].titlle,
+                        animation: google.maps.Animation.DROP,
+                        id: index,
+                        map:map,
+                        optimized: false // stops the marker from flashing
+                    });
+                    var largeInfowindow = new google.maps.InfoWindow();
+
+                    marker.addListener('click', function onClickFunction() {
+                        populateInfoWindow(this, largeInfowindow);
+                    });
+                    // Two event listeners - one for mouseover, one for mouseout,
+                    // to change the colors back and forth.
+                    marker.addListener('mouseover', function() {
+                        this.setIcon(highlightedIcon);
+                    });
+                    marker.addListener('mouseout', function() {
+                        this.setIcon(defaultIcon);
+                    });
+
+                    markers_filter.push(marker);
+
+                    // self.items.push(marker);
+                }
+        // showListings(markers_filter);
+    })
+
     // Fetches locations using google maps api and populates the `markers_filter`.
     // This function waits untill user has finished typing.
     self.throttledFilterLocation.subscribe(function(newValue) {
-
+        self.filterDefaultLocation('');
         if (self.filterLocation().length <= 0) {
             return;
         }
@@ -235,15 +261,15 @@ function MapsModel() {
 
     // List Item that is selected
     self.selectedItem = function() {
-
+        debugger;
 
         var location = { lat: this.position.lat(), lng: this.position.lng() };
 
         // populateInfoWindow(this,google.maps.InfoWindow());
         // this.trigger('click');
-        var event = new google.maps.event.trigger(this, 'click');
         map.setCenter(location);
         map.setZoom(15);
+        var event = new google.maps.event.trigger(this, 'click');
         self.items([]);
         self.isListVisible(false);
         self.filterLocation('');

@@ -1,21 +1,8 @@
 /*jshint -W083 */
-window.onerror = function(msg, url, lineNo, columnNo, error) {
-    var string = msg.toLowerCase();
-    var substring = "script error";
-    if (string.indexOf(substring) > -1) {
-        alert('Script Error: See Browser Console for Detail');
-    } else {
-        var message = [
-            'Message: ' + msg,
-            'URL: ' + url,
-            'Line: ' + lineNo,
-            'Column: ' + columnNo,
-            'Error object: ' + JSON.stringify(error)
-        ].join(' - ');
 
-        alert(message);
-    }
-
+// if script does not load.
+var error = function(msg) {
+    alert(msg + ' Check console for more details.');
     return false;
 };
 
@@ -26,44 +13,64 @@ var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI';
 // Create a new blank array for all the default locations.
 var markers = [];
 
+
+
+// This function will loop through the markers array and display them all.
+function showListings(value) {
+
+    var bounds = new google.maps.LatLngBounds();
+    // Extend the boundaries of the map for each marker and display the marker
+    for (var i = 0; i < value.length; i++) {
+        value[i].setMap(map);
+        bounds.extend(value[i].position);
+    }
+    map.fitBounds(bounds);
+}
+
 function initMap() {
     // Constructor creates a new map - only center and zoom are required.
     map = new google.maps.Map(document.getElementById('map'), {
-        center: { lat: 28.6139391, lng: 77.2090212 },
+        center: {
+            lat: 28.6139391,
+            lng: 77.2090212
+        },
         zoom: 13,
         mapTypeControl: false
     });
 
     // These are the real estate listings that will be shown to the user.
     // Normally we'd have these in a database instead.
-    var locations = [
-        { title: 'Rashtrapati Bhavan', location: { lat: 28.6144, lng: 77.1996 } },
-        {
-            title: 'National Zoological Park',
-            location: {
-                "lat": 28.6030,
-                "lng": 77.2465
-            }
-        }, {
-            title: 'Khan Market',
-            location: {
-                "lat": 28.6001,
-                "lng": 77.2270
-            }
-        }, {
-            title: 'Jawaharlal Nehru Stadium',
-            location: {
-                "lat": 28.5828,
-                "lng": 77.2344
-            }
-        }, {
-            title: 'India Gate',
-            location: {
-                "lat": 28.6129,
-                "lng": 77.2295
-            }
+    var locations = [{
+        title: 'Rashtrapati Bhavan',
+        location: {
+            lat: 28.6144,
+            lng: 77.1996
         }
-    ];
+    }, {
+        title: 'National Zoological Park',
+        location: {
+            "lat": 28.6030,
+            "lng": 77.2465
+        }
+    }, {
+        title: 'Khan Market',
+        location: {
+            "lat": 28.6001,
+            "lng": 77.2270
+        }
+    }, {
+        title: 'Jawaharlal Nehru Stadium',
+        location: {
+            "lat": 28.5828,
+            "lng": 77.2344
+        }
+    }, {
+        title: 'India Gate',
+        location: {
+            "lat": 28.6129,
+            "lng": 77.2295
+        }
+    }];
 
     var largeInfowindow = new google.maps.InfoWindow();
 
@@ -89,6 +96,8 @@ function initMap() {
         markers.push(marker);
 
     }
+
+    showListings(markers);
 }
 
 // This function is used to get info from third party api 
@@ -126,10 +135,16 @@ function getDataFromFourSquare(latlng, query) {
                 response.phone = response.phone;
             }
 
-            deferred.resolve({ status: true, response: response });
+            deferred.resolve({
+                status: true,
+                response: response
+            });
         },
         error: function(response) {
-            deferred.reject({ status: false, response: {} });
+            deferred.resolve({
+                status: false,
+                response: {}
+            });
         }
     });
 
@@ -148,7 +163,6 @@ function populateInfoWindow(marker, infowindow) {
     if (infowindow.marker != marker) {
         // Clear the infowindow content to give the streetview time to load.
         infowindow.setContent('<div id="pano"></div>');
-
         getDataFromFourSquare(marker.position, marker.title).then(function(data) {
             if (data.status) {
 
@@ -162,6 +176,7 @@ function populateInfoWindow(marker, infowindow) {
                 // infowindow.setContent('<div>' + marker.title + '</div><div id="pano"></div>');
 
             } else {
+                console.error('Unable to load data from foursqure. Setting default infoWindow');
                 infowindow.setContent('<div class="title">' + marker.title + '</div><div id="pano"></div>');
             }
 
@@ -170,7 +185,9 @@ function populateInfoWindow(marker, infowindow) {
                 marker.setAnimation(null);
             } else {
                 marker.setAnimation(google.maps.Animation.BOUNCE);
-                setTimeout(function() { marker.setAnimation(null); }, 1500);
+                setTimeout(function() {
+                    marker.setAnimation(null);
+                }, 1400);
             }
 
             infowindow.marker = marker;
@@ -230,20 +247,32 @@ function zoomToArea(addressValue) {
     // Make sure the address isn't blank.
     if (address === '') {
         window.alert('You must enter an area, or address.');
-        deferred.reject({ status: false, 'results': [] });
+        deferred.reject({
+            status: false,
+            'results': []
+        });
     } else {
         // Geocode the address/area entered to get the center. Then, center the map
         // on it and zoom in
         geocoder.geocode({
             address: address,
-            componentRestrictions: { country: 'India', locality: 'New Delhi' }
+            componentRestrictions: {
+                country: 'India',
+                locality: 'New Delhi'
+            }
         }, function(results, status) {
             if (status == google.maps.GeocoderStatus.OK) {
                 // map.setCenter(results[0].geometry.location);
                 // map.setZoom(15);
-                deferred.resolve({ status: true, results: results });
+                deferred.resolve({
+                    status: true,
+                    results: results
+                });
             } else {
-                deferred.reject({ status: false, 'results': [] });
+                deferred.reject({
+                    status: false,
+                    'results': []
+                });
                 window.alert('We could not find that location - try entering a more' +
                     ' specific place.');
             }
