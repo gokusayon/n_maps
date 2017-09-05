@@ -6,6 +6,10 @@ var error = function(msg) {
     return false;
 };
 
+$( document ).ajaxError(function( event, request, settings ) {
+  alert('Unable to load url. Check console for more info.');
+});
+
 var map;
 var clientID = 'T2QWMSK245PKMKIMQV152GJSNDRFVVXPH4P5AECAUFCE4GKF';
 var clientSecret = 'ZJL4KRUOW4AYO4PDFX3SZCPCEUUUFRQWQMR1FJ0VYZD3YRGI';
@@ -73,6 +77,7 @@ function initMap() {
     }];
 
     var largeInfowindow = new google.maps.InfoWindow();
+    var defaultIcon = makeMarkerIcon('0091ff');
 
     // The following group uses the location array to create an array of markers on initialize.
     for (var i = 0; i < locations.length; i++) {
@@ -85,7 +90,8 @@ function initMap() {
             title: title,
             animation: google.maps.Animation.DROP,
             id: i,
-            optimized: false // stops the marker from flashing
+            optimized: false,
+            icon: defaultIcon // stops the marker from flashing
         });
 
         // Create an onclick event to open an infowindow at each marker.
@@ -233,6 +239,10 @@ function populateInfoWindow(marker, infowindow) {
 function hideListings(array) {
     for (var i = 0; i < array.length; i++) {
         array[i].setMap(null);
+
+        if (array[i].infoWindow)
+            array[i].infoWindow.setMap(null);
+
     }
 }
 

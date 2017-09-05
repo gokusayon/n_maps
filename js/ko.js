@@ -59,39 +59,7 @@ function MapsModel() {
     // True if left pane visible 
     self.isListVisible = ko.observable(false);
 
-    self.defaultItems = ko.observableArray([{
-            "title": "Rashtrapati Bhavan",
-            "location": {
-                "lat": 28.6144,
-                "lng": 77.1996
-            }
-        },
-        {
-            "title": "National Zoological Park",
-            "location": {
-                "lat": 28.6030,
-                "lng": 77.2465
-            }
-        }, {
-            "title": "Khan Market",
-            "location": {
-                "lat": 28.6001,
-                "lng": 77.2270
-            }
-        }, {
-            "title": "Jawaharlal Nehru Stadium",
-            "location": {
-                "lat": 28.5828,
-                "lng": 77.2344
-            }
-        }, {
-            "title": "India Gate",
-            "location": {
-                "lat": 28.6129,
-                "lng": 77.2295
-            }
-        }
-    ]);
+    self.defaultItems = ko.observableArray(default_locations);
 
     self.setMarkerForDefaultList = function() {
         var largeInfowindow = new google.maps.InfoWindow();
@@ -139,9 +107,14 @@ function MapsModel() {
 
     // Sanity check 
     self.throttledFilterLocation = ko.computed(self.filterLocation)
-        .extend({ rateLimit: { timeout: 500, method: "notifyWhenChangesStop" } });
+        .extend({
+            rateLimit: {
+                timeout: 500,
+                method: "notifyWhenChangesStop"
+            }
+        });
 
-    self.filterDefaultLocation = ko.observable();
+    self.filterDefaultLocation = ko.observable('');
 
     // Used to filter default locations from the `self.defaultItems`. This is case sensitive.
     this.filterDefaultLocationList = ko.computed(function() {
@@ -156,40 +129,45 @@ function MapsModel() {
         });
     });
 
-    this.filterDefaultLocationList.subscribe(function (list) {
+    this.filterDefaultLocationList.subscribe(function(list) {
         // var marker_filter = [];
-
-                self.hideListings();
+        // 
+        // markers_filter = [];
         var defaultIcon = makeMarkerIcon('0091ff');
         var highlightedIcon = makeMarkerIcon('FFFF24');
+        var largeInfowindow = new google.maps.InfoWindow();
+        var filteredDefaultmarkerList = [];
         for (var index = 0; index < list.length; index++) {
-                                var marker = new google.maps.Marker({
-                        position: list[index].location,
-                        title: list[index].titlle,
-                        animation: google.maps.Animation.DROP,
-                        id: index,
-                        map:map,
-                        optimized: false // stops the marker from flashing
-                    });
-                    var largeInfowindow = new google.maps.InfoWindow();
+            var position = list[index].location;
+            var title = list[index].title;
+            // Create a marker per location, and put into markers array.
+            var marker = new google.maps.Marker({
+                position: position,
+                title: title,
+                animation: google.maps.Animation.DROP,
+                id: index,
+            });
+            marker.addListener('click', function onClickFunction() {
+                populateInfoWindow(this, largeInfowindow);
+            });
+            // Two event listeners - one for mouseover, one for mouseout,
+            // to change the colors back and forth.
+            marker.addListener('mouseover', function() {
+                this.setIcon(highlightedIcon);
+            });
+            marker.addListener('mouseout', function() {
+                this.setIcon(defaultIcon);
+            });
 
-                    marker.addListener('click', function onClickFunction() {
-                        populateInfoWindow(this, largeInfowindow);
-                    });
-                    // Two event listeners - one for mouseover, one for mouseout,
-                    // to change the colors back and forth.
-                    marker.addListener('mouseover', function() {
-                        this.setIcon(highlightedIcon);
-                    });
-                    marker.addListener('mouseout', function() {
-                        this.setIcon(defaultIcon);
-                    });
+            // marker.setMap(map);
 
-                    markers_filter.push(marker);
+            filteredDefaultmarkerList.push(marker);
 
-                    // self.items.push(marker);
-                }
-        // showListings(markers_filter);
+            // self.items.push(marker);
+        }
+
+        self.hideListings();
+        showListings(filteredDefaultmarkerList);
     });
 
     // Fetches locations using google maps api and populates the `markers_filter`.
@@ -212,6 +190,7 @@ function MapsModel() {
                 var list = response.results;
 
                 var defaultIcon = makeMarkerIcon('0091ff');
+                var largeInfowindow = new google.maps.InfoWindow();
 
                 // Create a "highlighted location" marker color for when the user
                 // mouses over the marker.
@@ -232,7 +211,6 @@ function MapsModel() {
                         icon: defaultIcon,
                         optimized: false // stops the marker from flashing
                     });
-                    var largeInfowindow = new google.maps.InfoWindow();
 
                     marker.addListener('click', function onClickFunction() {
                         populateInfoWindow(this, largeInfowindow);
@@ -261,12 +239,16 @@ function MapsModel() {
 
     // List Item that is selected
     self.selectedItem = function() {
-        var location = { lat: this.position.lat(), lng: this.position.lng() };
+        var location = {
+            lat: this.position.lat(),
+            lng: this.position.lng()
+        };
 
         // populateInfoWindow(this,google.maps.InfoWindow());
         // this.trigger('click');
         map.setCenter(location);
         map.setZoom(15);
+
         var event = new google.maps.event.trigger(this, 'click');
         self.items([]);
         self.isListVisible(false);
@@ -276,18 +258,24 @@ function MapsModel() {
     // Binding to show listings
     self.showListings = function() {
         self.filterLocation('');
-        showListings(markers);
+        // if (markers_filter.length)
+        //     showListings(markers_filter);
+
+        hideListings(markers);
+
         if (markers_filter.length)
-            showListings(markers_filter);
+            hideListings(markers_filter);
+        showListings(markers);
 
     };
 
     //Binding to hide listings
     self.hideListings = function() {
 
-        if (markers.length)
+        if (markers.length) {
             hideListings(markers);
 
+        }
         // If filtered locations are present then clear
         if (markers_filter.length) {
             hideListings(markers_filter);
